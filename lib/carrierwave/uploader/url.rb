@@ -16,21 +16,33 @@ module CarrierWave
       # [String] the location where this file is accessible via a url
       #
       def url(options = {})
-        if file.respond_to?(:url) and not file.url.blank?
-          file.method(:url).arity == 0 ? file.url : file.url(options)
-        elsif file.respond_to?(:path)
-          path = file.path.gsub(File.expand_path(root), '')
+        url =
+          if file.respond_to?(:url) and not file.url.blank?
+            file.method(:url).arity == 0 ? file.url : file.url(options)
+          elsif file.respond_to?(:path)
+            path = file.path.gsub(File.expand_path(root), '')
 
-          if host = asset_host
-            if host.respond_to? :call
-              "#{host.call(file)}#{path}"
+            if host = asset_host
+              if host.respond_to? :call
+                "#{host.call(file)}#{path}"
+              else
+                "#{host}#{path}"
+              end
             else
-              "#{host}#{path}"
+              (base_path || "") + path
             end
-          else
-            (base_path || "") + path
           end
+
+        uri_encode_url(url)
+      end
+
+      def uri_encode_url(url)
+        if url = URI.parse(url)
+          url.path = URI.escape(url.path, URI::REGEXP::PATTERN::RESERVED.sub("\/", ''))
+          url.to_s
         end
+      rescue URI::InvalidURIError
+        nil
       end
 
       def to_s
