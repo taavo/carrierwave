@@ -38,11 +38,26 @@ module CarrierWave
 
       def uri_encode_url(url)
         if url = URI.parse(url)
-          url.path = URI.escape(url.path, URI::REGEXP::PATTERN::RESERVED.sub("\/", ''))
+          url.path = uri_encode_path(url.path)
           url.to_s
         end
       rescue URI::InvalidURIError
         nil
+      end
+
+      def uri_encode_path(path)
+        # lifted from Ruby 1.9.3's URI.encode
+        unsafe_string = URI::REGEXP::PATTERN::RESERVED.sub("\/", '')
+        unsafe = Regexp.new("[#{Regexp.quote(unsafe_string)}]", false)
+
+        path.gsub(unsafe) do
+          us = $&
+          tmp = ''
+          us.each_byte do |uc|
+            tmp << sprintf('%%%02X', uc)
+          end
+          tmp
+        end.force_encoding(Encoding::US_ASCII)
       end
 
       def to_s
