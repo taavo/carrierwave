@@ -382,7 +382,7 @@ failures automatically with attribute validation errors. If you aren't, or you
 disable CarrierWave's `validate_download` option, you'll need to handle those
 errors yourself. And please note that CarrierWave does its best to interpret
 URLs intelligently, but this is [not always possible](https://github.com/jnicklas/carrierwave/wiki/Known-Issues),
-particularly in the case of unencoded `:?[]` characters in the URL path.
+particularly in the case of unencoded bracket characters in the URL path.
 
 ## Providing a default URL
 
